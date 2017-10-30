@@ -5,19 +5,23 @@
 #include <cmath>
 #include <iostream>
 #include <Nazara/Platform/Mouse.hpp>
+#include <Nazara/Platform/Keyboard.hpp>
 
 int main()
 {
 	Ndk::Application application;
 
-	Nz::RenderWindow& mainWindow = application.AddWindow<Nz::RenderWindow>(Nz::VideoMode(500, 500, 32), "Poop party", Nz::WindowStyle_Closable | Nz::WindowStyle_Threaded);
+	std::cout << Nz::VideoMode::GetDesktopMode().width << " " << Nz::VideoMode::GetDesktopMode().height << std::endl;
+
+	Nz::RenderWindow& mainWindow = application.AddWindow<Nz::RenderWindow>(Nz::VideoMode(500, 500, 32), "Poop party",/* Nz::WindowStyle_Closable |*/ Nz::WindowStyle_Threaded);
 	mainWindow.SetFramerateLimit(60);
+	mainWindow.SetStayOnTop(true);
 
 	Ndk::World& world = application.AddWorld();
 	world.GetSystem<Ndk::RenderSystem>().SetGlobalUp(Nz::Vector3f::Down());
 
 	Ndk::EntityHandle viewEntity = world.CreateEntity();
-	viewEntity->AddComponent<Ndk::NodeComponent>();
+	Ndk::NodeComponent& nodeComponent = viewEntity->AddComponent<Ndk::NodeComponent>();
 
 	Ndk::CameraComponent& viewer = viewEntity->AddComponent<Ndk::CameraComponent>();
 	viewer.SetTarget(&mainWindow);
@@ -27,28 +31,41 @@ int main()
 	textSprite->Update(Nz::SimpleTextDrawer::Draw("Hello world !", 72));
 
 	Ndk::EntityHandle text = world.CreateEntity();
-	Ndk::NodeComponent& nodeComponent = text->AddComponent<Ndk::NodeComponent>();
+	text->AddComponent<Ndk::NodeComponent>();
 	Ndk::GraphicsComponent& graphicsComponent = text->AddComponent<Ndk::GraphicsComponent>();
 	graphicsComponent.Attach(textSprite);
 
 	auto & handler = mainWindow.GetEventHandler();
-	handler.OnMoved.Connect([&nodeComponent](const Nz::EventHandler*, const Nz::WindowEvent::PositionEvent & e)
+
+	Nz::Vector2i clickPosition(0, 0);
+	Nz::Vector2f originalPos = nodeComponent.GetPosition() + Nz::Vector2f(mainWindow.GetPosition());
+
+	handler.OnMouseButtonPressed.Connect([&clickPosition](const Nz::EventHandler*, const Nz::WindowEvent::MouseButtonEvent & e)
 	{
-		Nz::Vector2f pos(100, 100);
-		nodeComponent.SetPosition(pos.x - e.x, pos.y - e.y, 0);
+		std::cout << "click" << std::endl;
+		clickPosition = Nz::Vector2i(e.x, e.y);
 	});
-	/*handler.OnMouseMoved.Connect([&nodeComponent, &mainWindow](const Nz::EventHandler*, const Nz::WindowEvent::MouseMoveEvent & e)
+
+	handler.OnMouseMoved.Connect([&nodeComponent, &mainWindow, &clickPosition, originalPos](const Nz::EventHandler*, const Nz::WindowEvent::MouseMoveEvent & e)
 	{
+		std::cout << "move" << std::endl;
 		if (!Nz::Mouse::IsButtonPressed(Nz::Mouse::Left))
 			return;
-		mainWindow.SetPosition(mainWindow.GetPosition() + Nz::Vector2i(e.deltaX, e.deltaY));
-		nodeComponent.SetPosition(nodeComponent.GetPosition() - Nz::Vector3f(e.deltaX, e.deltaY, 0));
-	});*/
+
+		auto pos = Nz::Mouse::GetPosition();
+
+		mainWindow.SetPosition(pos - clickPosition);
+		nodeComponent.SetPosition(- originalPos + Nz::Vector2f(mainWindow.GetPosition()));
+	});
+
+	handler.OnKeyPressed.Connect([&mainWindow](const Nz::EventHandler*, const Nz::WindowEvent::KeyEvent & e)
+	{
+		if (e.code == Nz::Keyboard::Escape)
+			mainWindow.Close();
+	});
 
 	while (application.Run())
 	{
-		
-
 		mainWindow.Display();
 	}
 
