@@ -1,13 +1,35 @@
 #include <NDK/Application.hpp>
+#include <NDK/StateMachine.hpp>
+#include "GameState.h"
+
+
+#include <iostream>
+
+int main()
+{
+	Ndk::Application application;
+	application.MakeExitOnLastWindowClosed(false);
+
+	Ndk::StateMachine fsm(std::make_shared<GameState>(application));
+
+	while (application.Run())
+	{
+		if (!fsm.Update(application.GetUpdateTime()))
+			application.Quit();
+	}
+
+	return 0;
+}
+
 #include <Nazara/Renderer.hpp>
 #include <NDK/Systems.hpp>
 #include <NDK/Components.hpp>
 #include <cmath>
-#include <iostream>
 #include <Nazara/Platform/Mouse.hpp>
 #include <Nazara/Platform/Keyboard.hpp>
+#include "WindowData.h"
 
-int main()
+int main2()
 {
 	Ndk::Application application;
 
@@ -27,6 +49,11 @@ int main()
 	viewer.SetTarget(&mainWindow);
 	viewer.SetProjectionType(Nz::ProjectionType_Orthogonal);
 
+	auto e = world.CreateEntity();
+	Ndk::CameraComponent & second = e->AddComponent<Ndk::CameraComponent>();
+	e->AddComponent<Ndk::NodeComponent>();
+	WindowData d(application, Nz::Recti(100, 100, 400, 400), second, 1);
+
 	Nz::TextSpriteRef textSprite = Nz::TextSprite::New();
 	textSprite->Update(Nz::SimpleTextDrawer::Draw("Hello world !", 72));
 
@@ -42,13 +69,11 @@ int main()
 
 	handler.OnMouseButtonPressed.Connect([&clickPosition](const Nz::EventHandler*, const Nz::WindowEvent::MouseButtonEvent & e)
 	{
-		std::cout << "click" << std::endl;
 		clickPosition = Nz::Vector2i(e.x, e.y);
 	});
 
 	handler.OnMouseMoved.Connect([&nodeComponent, &mainWindow, &clickPosition, originalPos](const Nz::EventHandler*, const Nz::WindowEvent::MouseMoveEvent & e)
 	{
-		std::cout << "move" << std::endl;
 		if (!Nz::Mouse::IsButtonPressed(Nz::Mouse::Left))
 			return;
 
@@ -66,8 +91,25 @@ int main()
 
 	while (application.Run())
 	{
+		//d.update(1000.0f/16);
 		mainWindow.Display();
 	}
 
 	return EXIT_SUCCESS;
+}
+
+#include <NDK/World.hpp>
+
+int main3()
+{
+	Ndk::Application application;
+
+	Ndk::World w1;
+	auto e = w1.CreateEntity();
+	auto & c = e->AddComponent<Ndk::NodeComponent>();
+	std::cout << &c << std::endl;
+	Ndk::World w2 = std::move(w1);
+	std::cout << &e->GetComponent<Ndk::NodeComponent>() << std::endl;
+	getchar();
+	return 0;
 }
