@@ -11,12 +11,12 @@ WindowManager::WindowManager(Ndk::Application & app, const Nz::Recti & screenRec
 
 void WindowManager::addWindow(const Nz::Recti & geometry, Ndk::CameraComponent & camera, unsigned int setIndex, unsigned int layer)
 {
-	m_windows.emplace_back(WindowData(m_app, geometry, camera, setIndex), layer);
+	m_windows.emplace_back(std::make_unique<WindowData>(m_app, geometry, camera, setIndex, m_screenRect), layer);
 	auto & w = m_windows.back().data;
 
-	mouseButtonPressedEvent.Connect(w.eventHandler().OnMouseButtonPressed, this, &WindowManager::onMouseButtonPressed);
-	mouseButtonReleasedEvent.Connect(w.eventHandler().OnMouseButtonReleased, this, &WindowManager::onMouseButtonReleased);
-	mouseMouvedEvent.Connect(w.eventHandler().OnMouseMoved, this, &WindowManager::onMouseMouved);
+	mouseButtonPressedEvent.Connect(w->eventHandler().OnMouseButtonPressed, this, &WindowManager::onMouseButtonPressed);
+	mouseButtonReleasedEvent.Connect(w->eventHandler().OnMouseButtonReleased, this, &WindowManager::onMouseButtonReleased);
+	mouseMouvedEvent.Connect(w->eventHandler().OnMouseMoved, this, &WindowManager::onMouseMouved);
 }
 
 void WindowManager::removeWindowsInLayer(unsigned int layer)
@@ -27,7 +27,7 @@ void WindowManager::removeWindowsInLayer(unsigned int layer)
 		{
 			if (item.layer != layer)
 				continue;
-			if (&item.data.eventHandler() == m_currentHandler)
+			if (&item.data->eventHandler() == m_currentHandler)
 			{
 				m_currentHandler = nullptr;
 				m_onMouseMove = false;
@@ -40,20 +40,34 @@ void WindowManager::removeWindowsInLayer(unsigned int layer)
 void WindowManager::update(float elapsedTime)
 {
 	for (auto & w : m_windows)
-		w.data.update(elapsedTime);
+		w.data->update(elapsedTime);
+
+	if (m_onMouseMove && !Nz::Mouse::IsButtonPressed(Nz::Mouse::Button::Left))
+	{
+		m_onMouseMove = false;
+		m_currentHandler = nullptr;
+	}
 }
 
 void WindowManager::onMouseButtonPressed(const Nz::EventHandler * handler, const Nz::WindowEvent::MouseButtonEvent & event)
 {
 	if (event.button == Nz::Mouse::Button::Left)
+	{
 		m_onMouseMove = true;
+		m_currentHandler = handler;
+		m_clickPosition = Nz::Vector2i(event.x, event.y);
+	}
 }
 
 void WindowManager::onMouseButtonReleased(const Nz::EventHandler * handler, const Nz::WindowEvent::MouseButtonEvent & event)
 {
 	if (event.button == Nz::Mouse::Button::Left)
+	{
 		m_onMouseMove = false;
+		m_currentHandler = nullptr;
+	}
 }
+#include <iostream>
 
 void WindowManager::onMouseMouved(const Nz::EventHandler * handler, const Nz::WindowEvent::MouseMoveEvent & event)
 {
@@ -61,15 +75,19 @@ void WindowManager::onMouseMouved(const Nz::EventHandler * handler, const Nz::Wi
 		return;
 
 	auto & w = getWindowFromHandler(m_currentHandler);
-	auto delta = moveWindow(w, Nz::Vector2i(event.deltaX, event.deltaY));
-	w.data.move(delta);
+	auto geometry = w.data->getGeometry();
+	auto delta = Nz::Mouse::GetPosition() - m_clickPosition - geometry.GetPosition();
+	if (delta.x == 0 && delta.y == 0)
+		return;
+	delta = moveWindow(w, delta);
+	w.data->move(delta);
 }
 
 WindowManager::WindowInfos & WindowManager::getWindowFromHandler(const Nz::EventHandler * handler)
 {
 	for (auto & w : m_windows)
 	{
-		if (&w.data.eventHandler() == handler)
+		if (&w.data->eventHandler() == handler)
 			return w;
 	}
 
@@ -80,14 +98,24 @@ WindowManager::WindowInfos & WindowManager::getWindowFromHandler(const Nz::Event
 
 Nz::Vector2i WindowManager::moveWindow(WindowManager::WindowInfos & w, Nz::Vector2i offset)
 {
-	auto rect = w.data.getGeometry();
+	auto rect = w.data->getGeometry();
+
+	if (rect.x + offset.x < m_screenRect.x)
+		offset.x = m_screenRect.x - rect.x;
+	if (rect.y + offset.y < m_screenRect.y)
+		offset.y = m_screenRect.y - rect.y;
+	if (rect.x + rect.width + offset.x > m_screenRect.x + m_screenRect.width)
+		offset.x = m_screenRect.x + m_screenRect.width - (rect.x + rect.width);
+	if (rect.y + rect.height + offset.y > m_screenRect.y + m_screenRect.height)
+		offset.y = m_screenRect.y + m_screenRect.height - (rect.y + rect.height);
+
 	int distX = offset.x;
 	for (auto & w2 : m_windows)
 	{
 		if (&w == &w2 || w2.layer != w.layer)
 			continue;
 		auto destRect = Nz::Recti(rect).Translate(Nz::Vector2i(distX, 0));
-		auto rect2 = w2.data.getGeometry();
+		auto rect2 = w2.data->getGeometry();
 		if (!destRect.Intersect(rect2))
 			continue;
 		if (distX < 0)
@@ -101,7 +129,7 @@ Nz::Vector2i WindowManager::moveWindow(WindowManager::WindowInfos & w, Nz::Vecto
 		if (&w == &w2 || w2.layer != w.layer)
 			continue;
 		auto destRect = Nz::Recti(rect).Translate(Nz::Vector2i(distX, distY));
-		auto rect2 = w2.data.getGeometry();
+		auto rect2 = w2.data->getGeometry();
 		if (!destRect.Intersect(rect2))
 			continue;
 		if (distY < 0)

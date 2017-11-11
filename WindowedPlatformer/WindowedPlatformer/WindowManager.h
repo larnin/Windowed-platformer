@@ -4,21 +4,22 @@
 #include <Nazara/Core/Signal.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <NDK/Application.hpp>
+#include <memory>
 #include <vector>
 
 class WindowManager
 {
 	struct WindowInfos
 	{
-		WindowInfos(WindowData && _data, unsigned int _layer)
+		WindowInfos(std::unique_ptr<WindowData> && _data, unsigned int _layer)
 			: data(std::move(_data)), layer(_layer)
 		{
 		}
 
-		WindowInfos(WindowInfos && w) = default;
+		WindowInfos(WindowInfos &&) = default;
 		WindowInfos & operator=(WindowInfos &&) = default;
 
-		WindowData data;
+		std::unique_ptr<WindowData> data;
 		unsigned int layer;
 	};
 
@@ -49,8 +50,9 @@ private:
 	std::vector<WindowInfos> m_windows;
 
 	bool m_onMouseMove;
-	Nz::EventHandler* m_currentHandler;
+	const Nz::EventHandler* m_currentHandler;
 
 	Nz::Recti m_screenRect;
+	Nz::Vector2i m_clickPosition;
 };
 

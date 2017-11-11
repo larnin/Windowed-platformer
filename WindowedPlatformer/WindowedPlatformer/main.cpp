@@ -52,7 +52,6 @@ int main2()
 	auto e = world.CreateEntity();
 	Ndk::CameraComponent & second = e->AddComponent<Ndk::CameraComponent>();
 	e->AddComponent<Ndk::NodeComponent>();
-	WindowData d(application, Nz::Recti(100, 100, 400, 400), second, 1);
 
 	Nz::TextSpriteRef textSprite = Nz::TextSprite::New();
 	textSprite->Update(Nz::SimpleTextDrawer::Draw("Hello world !", 72));
@@ -91,7 +90,6 @@ int main2()
 
 	while (application.Run())
 	{
-		//d.update(1000.0f/16);
 		mainWindow.Display();
 	}
 
@@ -100,16 +98,42 @@ int main2()
 
 #include <NDK/World.hpp>
 
-int main3()
+int main5()
 {
 	Ndk::Application application;
 
-	Ndk::World w1;
-	auto e = w1.CreateEntity();
-	auto & c = e->AddComponent<Ndk::NodeComponent>();
-	std::cout << &c << std::endl;
-	Ndk::World w2 = std::move(w1);
-	std::cout << &e->GetComponent<Ndk::NodeComponent>() << std::endl;
-	getchar();
-	return 0;
+	Nz::RenderWindow& mainWindow = application.AddWindow<Nz::RenderWindow>(Nz::VideoMode(500, 500, 32), "Poop party", Nz::WindowStyle_Closable | Nz::WindowStyle_Threaded);
+	mainWindow.SetFramerateLimit(60);
+	mainWindow.SetStayOnTop(true);
+
+	Ndk::World& world = application.AddWorld();
+	world.GetSystem<Ndk::RenderSystem>().SetGlobalUp(Nz::Vector3f::Down());
+
+	Ndk::EntityHandle viewEntity = world.CreateEntity();
+	Ndk::NodeComponent& nodeComponent = viewEntity->AddComponent<Ndk::NodeComponent>();
+	Ndk::CameraComponent& viewer = viewEntity->AddComponent<Ndk::CameraComponent>();
+	viewer.SetTarget(&mainWindow);
+	viewer.SetProjectionType(Nz::ProjectionType_Orthogonal);
+
+	Nz::TextSpriteRef textSprite = Nz::TextSprite::New();
+	textSprite->Update(Nz::SimpleTextDrawer::Draw("Hello world !", 72));
+
+	Ndk::EntityHandle text = world.CreateEntity();
+	text->AddComponent<Ndk::NodeComponent>();
+	Ndk::GraphicsComponent& graphicsComponent = text->AddComponent<Ndk::GraphicsComponent>();
+	graphicsComponent.Attach(textSprite);
+
+	auto & handler = mainWindow.GetEventHandler();
+
+	handler.OnMouseButtonPressed.Connect([](const Nz::EventHandler* handler, const Nz::WindowEvent::MouseButtonEvent & e)
+	{
+		std::cout << handler << std::endl;
+	});
+
+	while (application.Run())
+	{
+		mainWindow.Display();
+	}
+
+	return EXIT_SUCCESS;
 }
