@@ -21,6 +21,8 @@ class WindowManager
 
 		std::unique_ptr<WindowData> data;
 		unsigned int layer;
+
+		NazaraSlot(Nz::EventHandler, OnMouseButtonPressed, mouseButtonPressedEvent);
 	};
 
 public:
@@ -40,10 +42,6 @@ private:
 	Nz::Vector2i moveWindow(WindowInfos & w, Nz::Vector2i offset);
 
 	WindowInfos& getWindowFromHandler(const Nz::EventHandler* handler);
-
-	NazaraSlot(Nz::EventHandler, OnMouseButtonPressed, mouseButtonPressedEvent);
-	NazaraSlot(Nz::EventHandler, OnMouseButtonReleased, mouseButtonReleasedEvent);
-	NazaraSlot(Nz::EventHandler, OnMouseMoved, mouseMouvedEvent);
 
 	Ndk::Application & m_app;
 	std::vector<WindowInfos> m_windows;

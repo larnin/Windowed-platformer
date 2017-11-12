@@ -12,9 +12,9 @@ WindowManager::WindowManager(Ndk::Application & app, const Nz::Recti & screenRec
 void WindowManager::addWindow(const Nz::Recti & geometry, Ndk::CameraComponent & camera, unsigned int setIndex, unsigned int layer)
 {
 	m_windows.emplace_back(std::make_unique<WindowData>(m_app, geometry, camera, setIndex, m_screenRect), layer);
-	auto & w = m_windows.back().data;
+	auto & w = m_windows.back();
 
-	mouseButtonPressedEvent.Connect(w->eventHandler().OnMouseButtonPressed, this, &WindowManager::onMouseButtonPressed);
+	w.mouseButtonPressedEvent.Connect(w.data->eventHandler().OnMouseButtonPressed, this, &WindowManager::onMouseButtonPressed);
 }
 
 void WindowManager::removeWindowsInLayer(unsigned int layer)

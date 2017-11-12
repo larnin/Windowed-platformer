@@ -30,11 +30,12 @@ public:
 private:
 	Nz::SpriteRef createBackground(const std::string & textureName, float height);
 	void updateObjectsPosition();
+	void createBorder();
 
 	Nz::RenderWindow * m_window;
 	Ndk::NodeComponent * m_camera;
-	Ndk::NodeComponent * m_currentCamera;
 	Ndk::World m_world;
+	Ndk::World m_worldBorder;
 
 	Nz::SpriteRef m_backgroundSprite;
 	Nz::SpriteRef m_hillsSprite;
