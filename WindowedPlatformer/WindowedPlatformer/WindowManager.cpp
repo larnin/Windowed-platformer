@@ -15,8 +15,6 @@ void WindowManager::addWindow(const Nz::Recti & geometry, Ndk::CameraComponent &
 	auto & w = m_windows.back().data;
 
 	mouseButtonPressedEvent.Connect(w->eventHandler().OnMouseButtonPressed, this, &WindowManager::onMouseButtonPressed);
-	mouseButtonReleasedEvent.Connect(w->eventHandler().OnMouseButtonReleased, this, &WindowManager::onMouseButtonReleased);
-	mouseMouvedEvent.Connect(w->eventHandler().OnMouseMoved, this, &WindowManager::onMouseMouved);
 }
 
 void WindowManager::removeWindowsInLayer(unsigned int layer)
@@ -42,10 +40,14 @@ void WindowManager::update(float elapsedTime)
 	for (auto & w : m_windows)
 		w.data->update(elapsedTime);
 
-	if (m_onMouseMove && !Nz::Mouse::IsButtonPressed(Nz::Mouse::Button::Left))
+	if (m_onMouseMove)
 	{
-		m_onMouseMove = false;
-		m_currentHandler = nullptr;
+		onMouseMouved();
+		if(!Nz::Mouse::IsButtonPressed(Nz::Mouse::Button::Left))
+		{
+			m_onMouseMove = false;
+			m_currentHandler = nullptr;
+		}
 	}
 }
 
@@ -59,17 +61,7 @@ void WindowManager::onMouseButtonPressed(const Nz::EventHandler * handler, const
 	}
 }
 
-void WindowManager::onMouseButtonReleased(const Nz::EventHandler * handler, const Nz::WindowEvent::MouseButtonEvent & event)
-{
-	if (event.button == Nz::Mouse::Button::Left)
-	{
-		m_onMouseMove = false;
-		m_currentHandler = nullptr;
-	}
-}
-#include <iostream>
-
-void WindowManager::onMouseMouved(const Nz::EventHandler * handler, const Nz::WindowEvent::MouseMoveEvent & event)
+void WindowManager::onMouseMouved()
 {
 	if (!m_onMouseMove || m_currentHandler == nullptr)
 		return;
@@ -99,6 +91,12 @@ WindowManager::WindowInfos & WindowManager::getWindowFromHandler(const Nz::Event
 Nz::Vector2i WindowManager::moveWindow(WindowManager::WindowInfos & w, Nz::Vector2i offset)
 {
 	auto rect = w.data->getGeometry();
+	if (abs(offset.x) > rect.width || abs(offset.y) > rect.height)
+	{
+		auto maxCoef = std::max(abs(offset.x) / rect.width, abs(offset.y) / rect.height);
+		auto halfOffset = offset / (maxCoef + 1);
+		return moveWindow(w, halfOffset);
+	}
 
 	if (rect.x + offset.x < m_screenRect.x)
 		offset.x = m_screenRect.x - rect.x;
@@ -112,6 +110,8 @@ Nz::Vector2i WindowManager::moveWindow(WindowManager::WindowInfos & w, Nz::Vecto
 	int distX = offset.x;
 	for (auto & w2 : m_windows)
 	{
+		if (distX == 0)
+			break;
 		if (&w == &w2 || w2.layer != w.layer)
 			continue;
 		auto destRect = Nz::Recti(rect).Translate(Nz::Vector2i(distX, 0));
@@ -126,6 +126,8 @@ Nz::Vector2i WindowManager::moveWindow(WindowManager::WindowInfos & w, Nz::Vecto
 	int distY = offset.y;
 	for (auto & w2 : m_windows)
 	{
+		if (distY == 0)
+			break;
 		if (&w == &w2 || w2.layer != w.layer)
 			continue;
 		auto destRect = Nz::Recti(rect).Translate(Nz::Vector2i(distX, distY));

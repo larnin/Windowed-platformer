@@ -36,8 +36,7 @@ public:
 
 private:
 	void onMouseButtonPressed(const Nz::EventHandler* handler, const Nz::WindowEvent::MouseButtonEvent & event);
-	void onMouseButtonReleased(const Nz::EventHandler* handler, const Nz::WindowEvent::MouseButtonEvent & event);
-	void onMouseMouved(const Nz::EventHandler* handler, const Nz::WindowEvent::MouseMoveEvent & event);
+	void onMouseMouved();
 	Nz::Vector2i moveWindow(WindowInfos & w, Nz::Vector2i offset);
 
 	WindowInfos& getWindowFromHandler(const Nz::EventHandler* handler);

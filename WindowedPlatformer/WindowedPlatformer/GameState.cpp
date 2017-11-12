@@ -19,9 +19,11 @@ void GameState::Enter(Ndk::StateMachine & fsm)
 {
 	addWindow(Nz::Recti(100, 100, 400, 400), 1, 1);
 
-	//addWindow(Nz::Recti(600, 100, 400, 400), 1, 1);
+	addWindow(Nz::Recti(100, 600, 400, 400), 2, 1);
 
-	//addWindow(Nz::Recti(1100, 100, 400, 400), 1, 1);
+	addWindow(Nz::Recti(1000, 100, 400, 400), 3, 1);
+
+	addWindow(Nz::Recti(600, 600, 100, 100), 4, 1);
 }
 
 void GameState::Leave(Ndk::StateMachine & fsm)
