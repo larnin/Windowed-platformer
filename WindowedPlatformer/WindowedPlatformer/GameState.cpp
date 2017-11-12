@@ -1,6 +1,7 @@
 #include "GameState.h"
 #include <NDK/Components/NodeComponent.hpp>
 #include <NDK/Components/CameraComponent.hpp>
+#include <NDK/Systems/RenderSystem.hpp>
 
 const float globalRatio = 16.0f / 9.0f;
 const int defaultWidth = 1920;
@@ -12,7 +13,9 @@ GameState::GameState(Ndk::Application & app)
 	, m_screenRect(calculateScreenRect(globalRatio))
 	, m_windowManager(app, m_screenRect)
 {
-
+	auto & renderSystem = m_world.GetSystem<Ndk::RenderSystem>();
+	renderSystem.SetGlobalUp(Nz::Vector3f::Down());
+	renderSystem.SetDefaultBackground(nullptr);
 }
 
 void GameState::Enter(Ndk::StateMachine & fsm)

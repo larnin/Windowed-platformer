@@ -19,7 +19,7 @@ public:
 		return m_datas[x + y * m_width];
 	}
 
-	typename std::vector<T>::const_reference operator ()(const sf::Vector2u & pos) const
+	typename std::vector<T>::const_reference operator ()(unsigned int x, unsigned int y) const
 	{
 		assert(x < m_width && y < m_height);
 		return m_datas[x + y * m_width];
