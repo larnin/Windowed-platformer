@@ -29,7 +29,7 @@ public:
 	WindowManager(Ndk::Application & app, const Nz::Recti & screenRect);
 	~WindowManager() = default;
 
-	void addWindow(const Nz::Recti & geometry, Ndk::CameraComponent & camera, unsigned int setIndex, unsigned int layer);
+	WindowData& addWindow(const Nz::Recti & geometry, unsigned int setIndex, unsigned int layer);
 	void removeWindowsInLayer(unsigned int layer);
 
 	void update(float elapsedTime);

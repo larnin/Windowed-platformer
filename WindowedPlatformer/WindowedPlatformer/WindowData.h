@@ -14,7 +14,7 @@
 class WindowData
 {
 public:
-	WindowData(Ndk::Application & app, const Nz::Recti & geometry, Ndk::CameraComponent & camera, unsigned int setIndex, const Nz::Recti & screenRect);
+	WindowData(Ndk::Application & app, const Nz::Recti & geometry, unsigned int setIndex, const Nz::Recti & screenRect);
 	~WindowData();
 	WindowData(const WindowData & ) = delete;
 	WindowData & operator=(const WindowData &) = delete;
@@ -27,20 +27,32 @@ public:
 
 	inline Nz::EventHandler & eventHandler() { return m_window->GetEventHandler(); }
 
+	inline unsigned int setIndex() const { return m_setIndex; }
+
+	Ndk::EntityHandle createEntity();
+
 private:
 	Nz::SpriteRef createBackground(const std::string & textureName, float height);
 	void updateObjectsPosition();
 	void createBorder();
+	void updateCamera();
+	float calculateZoom();
 
 	Nz::RenderWindow * m_window;
-	Ndk::NodeComponent * m_camera;
-	Ndk::World m_world;
+	Ndk::World m_worldBack;
 	Ndk::World m_worldBorder;
+	Ndk::World m_worldGame;
 
 	Nz::SpriteRef m_backgroundSprite;
 	Nz::SpriteRef m_hillsSprite;
 	Nz::SpriteRef m_tilesSprite;
 	Nz::Recti m_screenRect;
+
+	Ndk::NodeComponent* m_cameraGame;
+
+	float m_zoom;
+
+	unsigned int m_setIndex;
 
 	static unsigned int m_windowCount;
 };

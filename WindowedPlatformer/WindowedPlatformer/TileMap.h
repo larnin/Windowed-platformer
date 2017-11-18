@@ -4,6 +4,7 @@
 #include "Utility\Matrix.h"
 #include <Nazara\Graphics\TileMap.hpp>
 #include <Nazara\Physics2D\Collider2D.hpp>
+#include <vector>
 
 class TileMap
 {
@@ -23,16 +24,19 @@ public:
 	inline unsigned int width() const { return m_tiles.width(); }
 	inline unsigned int height() const { return m_tiles.height(); }
 
-	inline void attachTilemap(Nz::TileMapRef tilemap) { m_tilemap = tilemap; }
+	inline void attachTilemap(Nz::TileMapRef tilemap) { m_tilemaps.push_back(tilemap); }
+	inline void detachTilemap(Nz::TileMapRef tilemap) { m_tilemaps.erase(std::remove(m_tilemaps.begin(), m_tilemaps.end(), tilemap), m_tilemaps.end()); }
+	inline void detachAllTilemap() { m_tilemaps.clear(); }
 	inline void attachColliders(Nz::CompoundCollider2DRef colliders) { m_colliders = colliders; }
 
 private:
 	void updateRender();
+	void updateRender(unsigned int x, unsigned int y);
 	void updateCollisions();
 
 	Matrix<Tile> m_tiles;
 
-	Nz::TileMapRef m_tilemap;
+	std::vector<Nz::TileMapRef> m_tilemaps;
 	Nz::CompoundCollider2DRef m_colliders;
 };
 

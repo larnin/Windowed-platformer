@@ -9,21 +9,21 @@ TileMap::TileMap(unsigned int width, unsigned int height, const Tile & t)
 void TileMap::setTile(unsigned int x, unsigned int y, const Tile & t)
 {
 	m_tiles(x, y) = t;
-	updateRender();
+	updateRender(x, y);
 	updateCollisions();
 }
 
 void TileMap::setFrontTile(unsigned int x, unsigned int y, unsigned int frontID)
 {
 	m_tiles(x, y).frontID = frontID;
-	updateRender();
+	updateRender(x, y);
 	updateCollisions();
 }
 
 void TileMap::setBackTile(unsigned int x, unsigned int y, unsigned int backID)
 {
 	m_tiles(x, y).backID = backID;
-	updateRender();
+	updateRender(x, y);
 	updateCollisions();
 }
 
@@ -45,6 +45,10 @@ unsigned int TileMap::getBackTile(unsigned int x, unsigned int y) const
 void TileMap::updateRender()
 {
 
+}
+
+void TileMap::updateRender(unsigned int x, unsigned int y)
+{
 }
 
 void TileMap::updateCollisions()

@@ -21,6 +21,7 @@ enum class TileColliderType
 
 enum class ColliderID
 {
+	NONE,
 	PLAYER,
 	GROUND,
 	PLATFORM,

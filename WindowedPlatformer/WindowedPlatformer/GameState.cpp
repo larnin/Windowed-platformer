@@ -46,7 +46,7 @@ void GameState::addWindow(const Nz::Recti & localGeometry, unsigned int setIndex
 {
 	auto e = m_world.CreateEntity();
 	e->AddComponent<Ndk::NodeComponent>();
-	m_windowManager.addWindow(localToGlobalGeometry(localGeometry), e->AddComponent<Ndk::CameraComponent>(), setIndex, layer);
+	m_windowManager.addWindow(localToGlobalGeometry(localGeometry), setIndex, layer);
 }
 
 Nz::Recti GameState::localToGlobalGeometry(const Nz::Recti & geometry)
