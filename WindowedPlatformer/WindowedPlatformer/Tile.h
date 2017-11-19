@@ -1,6 +1,7 @@
 #pragma once
 #include "Enums.h"
 #include <Nazara/Math/Vector2.hpp>
+#include <Nazara/Math/Rect.hpp>
 
 struct Tile
 {
@@ -11,7 +12,7 @@ struct Tile
 	unsigned int backID;
 };
 
-Nz::Vector2ui posFromTileID(unsigned int id);
+Nz::Rectui rectFromTileID(unsigned int id);
 TileLayer layerFromTileID(unsigned int id);
 TileColliderType colliderFromTileID(unsigned int id);
 ColliderID colliderIDFromTileID(unsigned int id);

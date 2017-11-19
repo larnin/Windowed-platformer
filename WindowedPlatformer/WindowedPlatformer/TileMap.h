@@ -8,9 +8,13 @@
 
 class TileMap
 {
-public:
-	
+	enum class TilemapLayer
+	{
+		BACK,
+		FRONT,
+	};
 
+public:
 	TileMap(unsigned int width, unsigned int height, const Tile & t = Tile());
 	~TileMap() = default;
 
@@ -24,19 +28,24 @@ public:
 	inline unsigned int width() const { return m_tiles.width(); }
 	inline unsigned int height() const { return m_tiles.height(); }
 
-	inline void attachTilemap(Nz::TileMapRef tilemap) { m_tilemaps.push_back(tilemap); }
-	inline void detachTilemap(Nz::TileMapRef tilemap) { m_tilemaps.erase(std::remove(m_tilemaps.begin(), m_tilemaps.end(), tilemap), m_tilemaps.end()); }
-	inline void detachAllTilemap() { m_tilemaps.clear(); }
+	inline void attachBackTilemap(Nz::TileMapRef tilemap) { m_backTilemaps.push_back(tilemap);  updateRender(tilemap, TilemapLayer::BACK); }
+	inline void detachBackTilemap(Nz::TileMapRef tilemap) { m_backTilemaps.erase(std::remove(m_backTilemaps.begin(), m_backTilemaps.end(), tilemap), m_backTilemaps.end()); }
+	inline void attachFrontTilemap(Nz::TileMapRef tilemap) { m_frontTilemaps.push_back(tilemap);  updateRender(tilemap, TilemapLayer::FRONT); }
+	inline void detachFrontTilemap(Nz::TileMapRef tilemap) { m_frontTilemaps.erase(std::remove(m_frontTilemaps.begin(), m_frontTilemaps.end(), tilemap), m_frontTilemaps.end()); }
+	inline void detachAllTilemap() { m_backTilemaps.clear(); m_frontTilemaps.clear(); }
 	inline void attachColliders(Nz::CompoundCollider2DRef colliders) { m_colliders = colliders; }
 
 private:
-	void updateRender();
-	void updateRender(unsigned int x, unsigned int y);
+	void updateRender(Nz::TileMapRef map, TilemapLayer layer);
+	void updateRender(Nz::TileMapRef map, unsigned int x, unsigned int y, TilemapLayer layer);
 	void updateCollisions();
+
+	unsigned int getTileID(unsigned int x, unsigned int y, TilemapLayer layer);
 
 	Matrix<Tile> m_tiles;
 
-	std::vector<Nz::TileMapRef> m_tilemaps;
+	std::vector<Nz::TileMapRef> m_backTilemaps;
+	std::vector<Nz::TileMapRef> m_frontTilemaps;
 	Nz::CompoundCollider2DRef m_colliders;
 };
 

@@ -1,10 +1,23 @@
 #include "Tile.h"
 
 unsigned int idInRow = 9;
+unsigned int tileWidth = 128;
+unsigned int tileHeight = 128;
 
-Nz::Vector2ui posFromTileID(unsigned int id)
+namespace
 {
-	return Nz::Vector2ui(id % idInRow, id / idInRow);
+	Nz::Vector2ui posFromTileID(unsigned int id)
+	{
+		if (id > 0)
+			id--;
+		return Nz::Vector2ui(id % idInRow, id / idInRow);
+	}
+}
+
+Nz::Rectui rectFromTileID(unsigned int id)
+{
+	auto pos = posFromTileID(id);
+	return Nz::Rectui(pos.x * tileWidth, pos.y * tileHeight, tileWidth, tileHeight);
 }
 
 TileLayer layerFromTileID(unsigned int id)
@@ -26,6 +39,9 @@ TileLayer layerFromTileID(unsigned int id)
 
 TileColliderType colliderFromTileID(unsigned int id)
 {
+	if (id = 0)
+		return TileColliderType::EMPTY;
+
 	auto pos = posFromTileID(id);
 
 	if (pos.y == 0 && pos.x >= 5)
@@ -59,6 +75,9 @@ TileColliderType colliderFromTileID(unsigned int id)
 
 ColliderID colliderIDFromTileID(unsigned int id)
 {
+	if (id == 0)
+		return ColliderID::NONE;
+
 	auto pos = posFromTileID(id);
 
 	if (pos.y == 0 && pos.x >= 5)
