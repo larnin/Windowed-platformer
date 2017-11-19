@@ -1,4 +1,5 @@
 #include "WindowData.h"
+#include "Animation2D/Animator2DSystem.h"
 #include <NDK/Components/GraphicsComponent.hpp>
 #include <iostream>
 
@@ -9,10 +10,13 @@ WindowData::WindowData(Ndk::Application & app, const Nz::Recti & geometry, unsig
 	, m_screenRect(screenRect)
 	, m_setIndex(setIndex)
 	, m_zoom(calculateZoom())
+	, m_movedLastFrame(false)
 {
 	m_worldBack.GetSystem<Ndk::RenderSystem>().SetGlobalUp(Nz::Vector3f::Down());
 	m_worldGame.GetSystem<Ndk::RenderSystem>().SetGlobalUp(Nz::Vector3f::Down());
 	m_worldGame.GetSystem<Ndk::RenderSystem>().SetDefaultBackground(nullptr);
+
+	m_worldGame.AddSystem<Animator2DSystem>();
 
 	m_window->SetPosition(geometry.x, geometry.y);
 	m_window->SetFramerateLimit(60);
@@ -38,6 +42,7 @@ WindowData::WindowData(Ndk::Application & app, const Nz::Recti & geometry, unsig
 	m_tilesSprite = createBackground("Res/Img/Set" + std::to_string(setIndex) + "/BackTiles.png", 1);
 	createBorder();
 	updateObjectsPosition();
+	updateCamera();
 }
 
 WindowData::~WindowData()
@@ -50,6 +55,7 @@ void WindowData::move(const Nz::Vector2i & offset)
 	m_window->SetPosition(m_window->GetPosition() + offset);
 	updateObjectsPosition();
 	updateCamera();
+	m_movedLastFrame = true;
 }
 
 void WindowData::update(float elapsedTime)
@@ -58,11 +64,26 @@ void WindowData::update(float elapsedTime)
 	m_worldGame.Update(elapsedTime);
 	m_worldBorder.Update(elapsedTime);
 	m_window->Display();
+
+	if (m_movedLastFrame)
+	{
+		updateObjectsPosition();
+		updateCamera();
+		m_movedLastFrame = false;
+	}
 }
 
 Ndk::EntityHandle WindowData::createEntity()
 {
 	return m_worldGame.CreateEntity();
+}
+
+Nz::Rectf WindowData::viewRect() const
+{
+	auto windowPos = m_window->GetPosition();
+	auto windowSize = m_window->GetSize();
+	windowPos -= m_screenRect.GetPosition();
+	return Nz::Rectf(float(windowPos.x) / m_screenRect.width, float(windowPos.y) / m_screenRect.height, float(windowSize.x) / m_screenRect.width, float(windowSize.y) / m_screenRect.height);
 }
 
 Nz::SpriteRef WindowData::createBackground(const std::string & textureName, float height)

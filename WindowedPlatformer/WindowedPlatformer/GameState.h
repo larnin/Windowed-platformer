@@ -1,6 +1,7 @@
 #pragma once
 
 #include "WindowManager.h"
+#include "TileMap.h"
 #include <NDK/State.hpp>
 #include <NDK/Application.hpp>
 #include <NDK/World.hpp>
@@ -19,10 +20,13 @@ private:
 	void addWindow(const Nz::Recti & localGeometry, unsigned int setIndex, unsigned int layer);
 	Nz::Recti localToGlobalGeometry(const Nz::Recti & geometry);
 	Nz::Recti calculateScreenRect(float ratio);
+	Nz::TileMapRef createTileMap(unsigned int setIndex);
 
 	Ndk::Application & m_app;
 	Nz::Recti m_screenRect;
 	Ndk::World m_world;
 	WindowManager m_windowManager;
+
+	TileMap m_tilemap;
 };
 

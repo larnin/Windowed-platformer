@@ -1,14 +1,24 @@
 #include <NDK/Application.hpp>
 #include <NDK/StateMachine.hpp>
 #include "GameState.h"
+#include "Animation2D/Animator2DComponent.h"
+#include "Animation2D/Animator2DSystem.h"
 
 
 #include <iostream>
+
+void initializeSystemsAndComponents()
+{
+	Ndk::InitializeComponent<Animator2DComponent>("005A2D");
+	Ndk::InitializeSystem<Animator2DSystem>();
+}
 
 int main()
 {
 	Ndk::Application application;
 	application.MakeExitOnLastWindowClosed(false);
+
+	initializeSystemsAndComponents();
 
 	Ndk::StateMachine fsm(std::make_shared<GameState>(application));
 

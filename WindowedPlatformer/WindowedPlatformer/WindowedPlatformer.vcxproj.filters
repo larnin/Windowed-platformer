@@ -19,6 +19,12 @@
     <Filter Include="Fichiers sources\Utility">
       <UniqueIdentifier>{fbdef00d-146f-48ac-9310-2f28c0d979ab}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Fichiers d%27en-tête\Animation2D">
+      <UniqueIdentifier>{9ff2cfa0-b012-4c8a-9c8a-219ba40421c9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers sources\Animation2D">
+      <UniqueIdentifier>{c304ba44-bd2d-420c-8a75-270544d331cb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -38,6 +44,33 @@
     </ClCompile>
     <ClCompile Include="Tile.cpp">
       <Filter>Fichiers sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Player.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Animation2D\Animation2D.cpp">
+      <Filter>Fichiers sources\Animation2D</Filter>
+    </ClCompile>
+    <ClCompile Include="Animation2D\Animation2DState.cpp">
+      <Filter>Fichiers sources\Animation2D</Filter>
+    </ClCompile>
+    <ClCompile Include="Animation2D\Animation2DTransition.cpp">
+      <Filter>Fichiers sources\Animation2D</Filter>
+    </ClCompile>
+    <ClCompile Include="Animation2D\Animator2D.cpp">
+      <Filter>Fichiers sources\Animation2D</Filter>
+    </ClCompile>
+    <ClCompile Include="Animation2D\Conditions.cpp">
+      <Filter>Fichiers sources\Animation2D</Filter>
+    </ClCompile>
+    <ClCompile Include="Animation2D\PropertiesHolder.cpp">
+      <Filter>Fichiers sources\Animation2D</Filter>
+    </ClCompile>
+    <ClCompile Include="Animation2D\Animator2DSystem.cpp">
+      <Filter>Fichiers sources\Animation2D</Filter>
+    </ClCompile>
+    <ClCompile Include="Animation2D\Animator2DComponent.cpp">
+      <Filter>Fichiers sources\Animation2D</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -62,5 +95,40 @@
     <ClInclude Include="Enums.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
+    <ClInclude Include="Player.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="Animation2D\Animation2D.h">
+      <Filter>Fichiers d%27en-tête\Animation2D</Filter>
+    </ClInclude>
+    <ClInclude Include="Animation2D\Animation2DEnv.h">
+      <Filter>Fichiers d%27en-tête\Animation2D</Filter>
+    </ClInclude>
+    <ClInclude Include="Animation2D\Animation2DState.h">
+      <Filter>Fichiers d%27en-tête\Animation2D</Filter>
+    </ClInclude>
+    <ClInclude Include="Animation2D\Animation2DTransition.h">
+      <Filter>Fichiers d%27en-tête\Animation2D</Filter>
+    </ClInclude>
+    <ClInclude Include="Animation2D\Animator2D.h">
+      <Filter>Fichiers d%27en-tête\Animation2D</Filter>
+    </ClInclude>
+    <ClInclude Include="Animation2D\Conditions.h">
+      <Filter>Fichiers d%27en-tête\Animation2D</Filter>
+    </ClInclude>
+    <ClInclude Include="Animation2D\PropertiesHolder.h">
+      <Filter>Fichiers d%27en-tête\Animation2D</Filter>
+    </ClInclude>
+    <ClInclude Include="Animation2D\Animator2DComponent.h">
+      <Filter>Fichiers d%27en-tête\Animation2D</Filter>
+    </ClInclude>
+    <ClInclude Include="Animation2D\Animator2DSystem.h">
+      <Filter>Fichiers d%27en-tête\Animation2D</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Animation2D\Animation2D.inl">
+      <Filter>Fichiers d%27en-tête\Animation2D</Filter>
+    </None>
   </ItemGroup>
 </Project>

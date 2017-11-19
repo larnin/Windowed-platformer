@@ -39,6 +39,7 @@ private:
 	void updateRender(Nz::TileMapRef map, TilemapLayer layer);
 	void updateRender(Nz::TileMapRef map, unsigned int x, unsigned int y, TilemapLayer layer);
 	void updateCollisions();
+	Nz::Collider2DRef createCollider(float x, float y, TileColliderType type);
 
 	unsigned int getTileID(unsigned int x, unsigned int y, TilemapLayer layer);
 

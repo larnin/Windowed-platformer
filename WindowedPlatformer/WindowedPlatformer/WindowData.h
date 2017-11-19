@@ -31,6 +31,8 @@ public:
 
 	Ndk::EntityHandle createEntity();
 
+	Nz::Rectf viewRect() const; //normalized window rect
+
 private:
 	Nz::SpriteRef createBackground(const std::string & textureName, float height);
 	void updateObjectsPosition();
@@ -53,6 +55,8 @@ private:
 	float m_zoom;
 
 	unsigned int m_setIndex;
+
+	bool m_movedLastFrame;
 
 	static unsigned int m_windowCount;
 };

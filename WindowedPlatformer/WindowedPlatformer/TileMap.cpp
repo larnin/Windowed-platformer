@@ -72,7 +72,58 @@ void TileMap::updateRender(Nz::TileMapRef map, unsigned int x, unsigned int y, T
 
 void TileMap::updateCollisions()
 {
+	if (!m_colliders)
+		return;
 
+	std::vector<Nz::Collider2DRef> colliders;
+
+	for (unsigned int i(0); i < m_tiles.width(); i++)
+		for (unsigned int j(0); j < m_tiles.height(); j++)
+		{
+			auto tile = getTile(i, j);
+			auto colliderType = colliderFromTileID(tile.frontID);
+			if (colliderType != TileColliderType::EMPTY)
+				colliders.push_back(createCollider(i, j, colliderType));
+			colliderType = colliderFromTileID(tile.backID);
+			if (colliderType != TileColliderType::EMPTY)
+				colliders.push_back(createCollider(i, j, colliderType));
+		}
+}
+
+Nz::Collider2DRef TileMap::createCollider(float x, float y, TileColliderType type)
+{
+	switch (type)
+	{
+	case TileColliderType::FULL:
+		return Nz::BoxCollider2D::New(Nz::Rectf(x, y, 1, 1));
+	case TileColliderType::TRIANGLE_LEFT:
+	{
+		Nz::Vector2f p1[]{ { x + 1, y },{ x + 1, y + 1 },{ x, y + 1 } };
+		return Nz::ConvexCollider2D::New(p1, 3);
+	}
+	case TileColliderType::TRIANGLE_RIGHT:
+	{
+		Nz::Vector2f p2[]{ { x, y },{ x + 1, y + 1 },{ x, y + 1 } };
+		return Nz::ConvexCollider2D::New(p2, 3);
+	}
+	case TileColliderType::TRIANGLE_DOWN_LEFT:
+	{
+		Nz::Vector2f p3[]{ { x, y },{ x + 1, y },{ x + 1, y + 1 } };
+		return Nz::ConvexCollider2D::New(p3, 3);
+	}
+	case TileColliderType::TRIANGLE_DOWN_RIGHT:
+	{
+		Nz::Vector2f p4[]{ { x, y },{ x + 1, y },{ x, y + 1 } };
+		return Nz::ConvexCollider2D::New(p4, 3);
+	}
+	case TileColliderType::HALF_TOP:
+		return Nz::BoxCollider2D::New(Nz::Rectf(x, y, 1, 0.5f));
+	case TileColliderType::HALF_BOTTOM:
+		return Nz::BoxCollider2D::New(Nz::Rectf(x, y + 0.5f, 1, 0.5f));
+	case TileColliderType::VERTICAL_CENTER:
+		return Nz::BoxCollider2D::New(Nz::Rectf(x + 0.25f, y, 0.5f, 1));
+	}
+	return Nz::NullCollider2D::New();
 }
 
 unsigned int TileMap::getTileID(unsigned int x, unsigned int y, TilemapLayer layer)

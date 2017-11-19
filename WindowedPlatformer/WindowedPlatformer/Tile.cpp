@@ -1,8 +1,7 @@
 #include "Tile.h"
 
 unsigned int idInRow = 9;
-unsigned int tileWidth = 128;
-unsigned int tileHeight = 128;
+unsigned int tileSize = 128;
 
 namespace
 {
@@ -17,7 +16,7 @@ namespace
 Nz::Rectui rectFromTileID(unsigned int id)
 {
 	auto pos = posFromTileID(id);
-	return Nz::Rectui(pos.x * tileWidth, pos.y * tileHeight, tileWidth, tileHeight);
+	return Nz::Rectui(pos.x * tileSize, pos.y * tileSize, tileSize, tileSize);
 }
 
 TileLayer layerFromTileID(unsigned int id)

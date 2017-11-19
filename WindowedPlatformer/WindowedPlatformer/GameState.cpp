@@ -7,15 +7,22 @@ const float globalRatio = 16.0f / 9.0f;
 const int defaultWidth = 1920;
 const int defaultHeight = defaultWidth / globalRatio;
 
-
 GameState::GameState(Ndk::Application & app)
 	: m_app(app)
 	, m_screenRect(calculateScreenRect(globalRatio))
 	, m_windowManager(app, m_screenRect)
+	, m_tilemap(32, 18)
 {
-	auto & renderSystem = m_world.GetSystem<Ndk::RenderSystem>();
-	renderSystem.SetGlobalUp(Nz::Vector3f::Down());
-	renderSystem.SetDefaultBackground(nullptr);
+
+	unsigned int y = 8;
+	m_tilemap.setBackTile(1, y, 2);
+	for (unsigned int i(2); i < 25; i++)
+		m_tilemap.setBackTile(i, y, 3);
+	m_tilemap.setBackTile(25, y, 4);
+	for (unsigned int i(1); i < 26; i++)
+		m_tilemap.setBackTile(i, y+1, 1);
+	m_tilemap.setBackTile(10, y+1, 10);
+	m_tilemap.setBackTile(15, y+1, 19);
 }
 
 void GameState::Enter(Ndk::StateMachine & fsm)
@@ -44,9 +51,17 @@ bool GameState::Update(Ndk::StateMachine & fsm, float elapsedTime)
 
 void GameState::addWindow(const Nz::Recti & localGeometry, unsigned int setIndex, unsigned int layer)
 {
-	auto e = m_world.CreateEntity();
-	e->AddComponent<Ndk::NodeComponent>();
-	m_windowManager.addWindow(localToGlobalGeometry(localGeometry), setIndex, layer);
+	auto& w = m_windowManager.addWindow(localToGlobalGeometry(localGeometry), setIndex, layer);
+
+	auto tilemapEntity = w.createEntity();
+	tilemapEntity->AddComponent<Ndk::NodeComponent>();
+	auto & tilemapGraphic = tilemapEntity->AddComponent<Ndk::GraphicsComponent>();
+	auto & frontTilemap = createTileMap(setIndex);
+	auto & backTilemap = createTileMap(setIndex);
+	tilemapGraphic.Attach(frontTilemap, 1);
+	tilemapGraphic.Attach(backTilemap, 0);
+	m_tilemap.attachBackTilemap(backTilemap);
+	m_tilemap.attachFrontTilemap(frontTilemap);
 }
 
 Nz::Recti GameState::localToGlobalGeometry(const Nz::Recti & geometry)
@@ -67,4 +82,13 @@ Nz::Recti GameState::calculateScreenRect(float ratio)
 
 	int h = mode.width / ratio;
 	return Nz::Recti(0, (mode.height - h) / 2, mode.width, h);
+}
+
+Nz::TileMapRef GameState::createTileMap(unsigned int setIndex)
+{
+	auto tilemap = Nz::TileMap::New(Nz::Vector2ui(m_tilemap.width(), m_tilemap.height()), Nz::Vector2f(float(m_screenRect.width) / m_tilemap.width(), float(m_screenRect.height) / m_tilemap.height()));
+	auto mat = Nz::Material::New("Translucent2D");
+	mat->SetDiffuseMap("Res/Img/Set" + std::to_string(setIndex) + "/Tileset.png");
+	tilemap->SetMaterial(0, mat);
+	return tilemap;
 }
