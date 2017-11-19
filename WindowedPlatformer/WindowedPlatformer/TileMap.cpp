@@ -2,6 +2,7 @@
 
 TileMap::TileMap(unsigned int width, unsigned int height, const Tile & t)
 	: m_tiles(width, height, t)
+	, m_colliders(nullptr)
 {
 
 }
@@ -72,7 +73,7 @@ void TileMap::updateRender(Nz::TileMapRef map, unsigned int x, unsigned int y, T
 
 void TileMap::updateCollisions()
 {
-	if (!m_colliders)
+	if (m_colliders == nullptr)
 		return;
 
 	std::vector<Nz::Collider2DRef> colliders;
@@ -83,11 +84,20 @@ void TileMap::updateCollisions()
 			auto tile = getTile(i, j);
 			auto colliderType = colliderFromTileID(tile.frontID);
 			if (colliderType != TileColliderType::EMPTY)
-				colliders.push_back(createCollider(i, j, colliderType));
+			{
+				auto collider = createCollider(i, j, colliderType);
+				collider->SetCollisionId((unsigned int)(colliderIDFromTileID(tile.frontID)));
+				colliders.push_back(collider);
+			}
 			colliderType = colliderFromTileID(tile.backID);
 			if (colliderType != TileColliderType::EMPTY)
-				colliders.push_back(createCollider(i, j, colliderType));
+			{
+				auto collider = createCollider(i, j, colliderType);
+				collider->SetCollisionId((unsigned int)(colliderIDFromTileID(tile.backID)));
+				colliders.push_back(collider);
+			}
 		}
+	m_colliders->SetGeom(Nz::CompoundCollider2D::New(colliders));
 }
 
 Nz::Collider2DRef TileMap::createCollider(float x, float y, TileColliderType type)

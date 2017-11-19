@@ -1,9 +1,10 @@
 #pragma once
 
 #include "Tile.h"
-#include "Utility\Matrix.h"
-#include <Nazara\Graphics\TileMap.hpp>
-#include <Nazara\Physics2D\Collider2D.hpp>
+#include "Utility/Matrix.h"
+#include <Nazara/Graphics/TileMap.hpp>
+#include <Nazara/Physics2D/Collider2D.hpp>
+#include <NDK/Components/CollisionComponent2D.hpp>
 #include <vector>
 
 class TileMap
@@ -33,7 +34,7 @@ public:
 	inline void attachFrontTilemap(Nz::TileMapRef tilemap) { m_frontTilemaps.push_back(tilemap);  updateRender(tilemap, TilemapLayer::FRONT); }
 	inline void detachFrontTilemap(Nz::TileMapRef tilemap) { m_frontTilemaps.erase(std::remove(m_frontTilemaps.begin(), m_frontTilemaps.end(), tilemap), m_frontTilemaps.end()); }
 	inline void detachAllTilemap() { m_backTilemaps.clear(); m_frontTilemaps.clear(); }
-	inline void attachColliders(Nz::CompoundCollider2DRef colliders) { m_colliders = colliders; }
+	inline void attachColliders(Ndk::CollisionComponent2D & colliders) { m_colliders = &colliders; }
 
 private:
 	void updateRender(Nz::TileMapRef map, TilemapLayer layer);
@@ -47,6 +48,6 @@ private:
 
 	std::vector<Nz::TileMapRef> m_backTilemaps;
 	std::vector<Nz::TileMapRef> m_frontTilemaps;
-	Nz::CompoundCollider2DRef m_colliders;
+	Ndk::CollisionComponent2D* m_colliders;
 };
 

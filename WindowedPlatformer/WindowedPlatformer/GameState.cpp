@@ -1,7 +1,11 @@
 #include "GameState.h"
 #include <NDK/Components/NodeComponent.hpp>
 #include <NDK/Components/CameraComponent.hpp>
+#include <NDK/Components/PhysicsComponent2D.hpp>
 #include <NDK/Systems/RenderSystem.hpp>
+#include <NDK/Systems/PhysicsSystem2D.hpp>
+
+#include <iostream>
 
 const float globalRatio = 16.0f / 9.0f;
 const int defaultWidth = 1920;
@@ -13,6 +17,33 @@ GameState::GameState(Ndk::Application & app)
 	, m_windowManager(app, m_screenRect)
 	, m_tilemap(32, 18)
 {
+	auto & physWorld = m_world.GetSystem<Ndk::PhysicsSystem2D>().GetWorld();
+	physWorld.SetGravity(Nz::Vector2f(0, 1));
+
+	Nz::PhysWorld2D::Callback playerGroundCallback;
+	playerGroundCallback.startCallback = [](Nz::PhysWorld2D& world, Nz::RigidBody2D& bodyA, Nz::RigidBody2D& bodyB, void*)
+	{
+		std::cout << "Start" << std::endl;
+		return true;
+	};
+
+	playerGroundCallback.endCallback = [](Nz::PhysWorld2D& world, Nz::RigidBody2D& bodyA, Nz::RigidBody2D& bodyB, void*)
+	{
+		std::cout << "end" << std::endl;
+	};
+
+	playerGroundCallback.preSolveCallback = [](Nz::PhysWorld2D& world, Nz::RigidBody2D& bodyA, Nz::RigidBody2D& bodyB, void*)
+	{
+		std::cout << "pre" << std::endl;
+		return true;
+	};
+
+	playerGroundCallback.postSolveCallback = [](Nz::PhysWorld2D& world, Nz::RigidBody2D& bodyA, Nz::RigidBody2D& bodyB, void*)
+	{
+		std::cout << "post" << std::endl;
+	};
+
+	physWorld.RegisterCallbacks((unsigned int)(ColliderID::PLAYER), (unsigned int)(ColliderID::GROUND), playerGroundCallback);
 
 	unsigned int y = 8;
 	m_tilemap.setBackTile(1, y, 2);
@@ -23,11 +54,17 @@ GameState::GameState(Ndk::Application & app)
 		m_tilemap.setBackTile(i, y+1, 1);
 	m_tilemap.setBackTile(10, y+1, 10);
 	m_tilemap.setBackTile(15, y+1, 19);
+
+	auto entity = m_world.CreateEntity();
+	entity->AddComponent<Ndk::NodeComponent>();
+	m_tilemap.attachColliders(entity->AddComponent<Ndk::CollisionComponent2D>());
+
+	m_player.attachPhysicEntity(m_world.CreateEntity(), Nz::Vector2f(5, 1));
 }
 
 void GameState::Enter(Ndk::StateMachine & fsm)
 {
-	addWindow(Nz::Recti(100, 100, 400, 400), 1, 1);
+	addWindow(Nz::Recti(0, 0, 400, 400), 1, 1);
 
 	addWindow(Nz::Recti(100, 600, 400, 400), 2, 1);
 
@@ -45,6 +82,7 @@ bool GameState::Update(Ndk::StateMachine & fsm, float elapsedTime)
 {
 	m_world.Update(elapsedTime);
 	m_windowManager.update(elapsedTime);
+	m_player.update(elapsedTime);
 
 	return m_windowManager.windowCount() > 0;
 }
@@ -62,6 +100,8 @@ void GameState::addWindow(const Nz::Recti & localGeometry, unsigned int setIndex
 	tilemapGraphic.Attach(backTilemap, 0);
 	m_tilemap.attachBackTilemap(backTilemap);
 	m_tilemap.attachFrontTilemap(frontTilemap);
+
+	m_player.attachGraphicEntity(w.createEntity(), setIndex, float(m_screenRect.width) / m_tilemap.width());
 }
 
 Nz::Recti GameState::localToGlobalGeometry(const Nz::Recti & geometry)

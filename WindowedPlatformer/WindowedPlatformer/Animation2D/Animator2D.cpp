@@ -5,6 +5,7 @@ Animator2D::Animator2D(Animation2DRef animation)
 {
 	addAnimation(animation);
 	addState(Animation2DState(animation->getName(), animation));
+	m_defaultStateName = animation->getName();
 }
 
 void Animator2D::addAnimation(Animation2DRef animation)

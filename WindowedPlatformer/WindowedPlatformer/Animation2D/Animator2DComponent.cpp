@@ -27,13 +27,13 @@ bool Animator2DComponent::update(float elapsedTime)
 	m_needToUpdate = false;
 
 	if (m_currentState == nullptr)
-		return m_needToUpdate;
+		return false;
 
 	if (checkTransitions())
 		return true;
 
 	if (m_paused)
-		return m_needToUpdate;
+		return oldNeedToUpdate;
 	elapsedTime *= std::abs(m_animationSpeed * m_currentState->getSpeed());
 
 	m_currentStateTime += elapsedTime;
@@ -43,7 +43,7 @@ bool Animator2DComponent::update(float elapsedTime)
 		updateCurrentFrame();
 		return true;
 	}
-	return m_needToUpdate;
+	return oldNeedToUpdate;
 }
 
 void Animator2DComponent::setAnimationSpeed(float value)

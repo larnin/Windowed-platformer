@@ -2,6 +2,7 @@
 
 #include "WindowManager.h"
 #include "TileMap.h"
+#include "Player.h"
 #include <NDK/State.hpp>
 #include <NDK/Application.hpp>
 #include <NDK/World.hpp>
@@ -28,5 +29,6 @@ private:
 	WindowManager m_windowManager;
 
 	TileMap m_tilemap;
+	Player m_player;
 };
 
