@@ -30,8 +30,6 @@ public:
 private:
 	void setProperty(const std::string & key, int value);
 	Animator2DRef createAnimator();
-	void onTouchGround();
-	void onExitGround();
 
 	std::vector<RenderInfos> m_renders;
 	Ndk::PhysicsComponent2D* m_physics;

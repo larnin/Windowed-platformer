@@ -10,7 +10,7 @@
 
 const float width = 0.6f;
 const float height = 0.8f;
-const float acceleration = 3.0f;
+const float acceleration = 20.0f;
 const float maxSpeed = 5.0f;
 const float jumpPower = 5.0f;
 
@@ -90,13 +90,13 @@ void Player::createCallbacks(Nz::PhysWorld2D & physWorld)
 	Nz::PhysWorld2D::Callback groundCallbacks;
 	groundCallbacks.startCallback = [this](Nz::PhysWorld2D& world, Nz::RigidBody2D& bodyA, Nz::RigidBody2D& bodyB, void*)
 	{
-		onTouchGround();
+		m_grounded = true;
 		return true;
 	};
 
 	groundCallbacks.endCallback = [this](Nz::PhysWorld2D& world, Nz::RigidBody2D& bodyA, Nz::RigidBody2D& bodyB, void*)
 	{
-		onExitGround();
+		m_grounded = false;
 	};
 
 	physWorld.RegisterCallbacks((unsigned int)(ColliderID::PLAYER), (unsigned int)(ColliderID::GROUND), groundCallbacks);
@@ -115,17 +115,4 @@ Animator2DRef Player::createAnimator()
 	auto anim = Animation2D::New("Idle");
 	anim->addFrame(Frame(100, Nz::Rectui(246, 0, 45, 53)));
 	return Animator2D::New(anim);
-}
-
-void Player::onTouchGround()
-{
-	m_grounded = true;
-	auto velocity = m_physics->GetVelocity();
-	velocity.y = 0;
-	m_physics->SetVelocity(velocity);
-}
-
-void Player::onExitGround()
-{
-	m_grounded = false;
 }

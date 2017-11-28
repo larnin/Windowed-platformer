@@ -147,3 +147,55 @@ int main5()
 
 	return EXIT_SUCCESS;
 }
+
+#include <NDK/Application.hpp>
+#include <NDK/Systems.hpp>
+#include <NDK/Components.hpp>
+#include <iostream>
+
+int main8()
+{
+	Ndk::Application application; 
+	Nz::RenderWindow& mainWindow = application.AddWindow<Nz::RenderWindow>(Nz::VideoMode(500, 500, 32), "Poop party", Nz::WindowStyle_Closable | Nz::WindowStyle_Threaded);
+	mainWindow.SetFramerateLimit(60);
+	mainWindow.SetStayOnTop(true);
+
+	Ndk::World& world = application.AddWorld();
+	world.GetSystem<Ndk::RenderSystem>().SetGlobalUp(Nz::Vector3f::Down());
+	world.GetSystem<Ndk::PhysicsSystem2D>().GetWorld().SetGravity(Nz::Vector2f(0, 20));
+
+	Ndk::EntityHandle viewEntity = world.CreateEntity();
+	Ndk::NodeComponent& nodeComponent = viewEntity->AddComponent<Ndk::NodeComponent>();
+	Ndk::CameraComponent& viewer = viewEntity->AddComponent<Ndk::CameraComponent>();
+	viewer.SetTarget(&mainWindow);
+	viewer.SetProjectionType(Nz::ProjectionType_Orthogonal);
+
+	auto entitySprite = Nz::Sprite::New();
+	entitySprite->SetSize(50, 50);
+	auto colliderSprite = Nz::Sprite::New();
+	colliderSprite->SetSize(500, 100);
+	colliderSprite->SetColor(Nz::Color::Red);
+
+	auto entity = world.CreateEntity();
+	entity->AddComponent<Ndk::NodeComponent>();
+	auto& colliderEntity = entity->AddComponent<Ndk::CollisionComponent2D>(Nz::BoxCollider2D::New(Nz::Rectf(0, 0, 50, 50)));
+	auto& physicEntity = entity->AddComponent<Ndk::PhysicsComponent2D>();
+	physicEntity.SetPosition(Nz::Vector2f(200, 50));
+	auto& graphicEntity = entity->AddComponent<Ndk::GraphicsComponent>();
+	graphicEntity.Attach(entitySprite);
+	
+	auto wall = world.CreateEntity();
+	auto& nodeWall = wall->AddComponent<Ndk::NodeComponent>();
+	nodeWall.SetPosition(Nz::Vector2f(0, 300));
+	wall->AddComponent<Ndk::CollisionComponent2D>(Nz::BoxCollider2D::New(Nz::Rectf(0, 0, 500, 100)));
+	auto& graphicWall = wall->AddComponent<Ndk::GraphicsComponent>();
+	graphicWall.Attach(colliderSprite);
+
+	while (application.Run())
+	{
+		std::cout << physicEntity.GetPosition().x << "\t" << physicEntity.GetPosition().y << "\t" << physicEntity.GetVelocity().x << "\t" << physicEntity.GetVelocity().y << std::endl;
+		mainWindow.Display();
+	}
+
+	return EXIT_SUCCESS;
+}
