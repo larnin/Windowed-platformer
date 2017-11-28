@@ -34,6 +34,10 @@ namespace Ndk
 			Canvas& operator=(Canvas&&) = delete;
 
 		protected:
+			inline void ClearKeyboardOwner(std::size_t canvasIndex);
+
+			inline bool IsKeyboardOwner(std::size_t canvasIndex) const;
+
 			inline void NotifyWidgetBoxUpdate(std::size_t index);
 			inline void NotifyWidgetCursorUpdate(std::size_t index);
 
@@ -52,7 +56,7 @@ namespace Ndk
 			void OnEventKeyReleased(const Nz::EventHandler* eventHandler, const Nz::WindowEvent::KeyEvent& event);
 			void OnEventTextEntered(const Nz::EventHandler* eventHandler, const Nz::WindowEvent::TextEvent& event);
 
-			struct WidgetBox
+			struct WidgetEntry
 			{
 				BaseWidget* widget;
 				Nz::Boxf box;
@@ -69,7 +73,7 @@ namespace Ndk
 
 			std::size_t m_keyboardOwner;
 			std::size_t m_hoveredWidget;
-			std::vector<WidgetBox> m_widgetBoxes;
+			std::vector<WidgetEntry> m_widgetEntries;
 			Nz::CursorControllerHandle m_cursorController;
 			WorldHandle m_world;
 	};
