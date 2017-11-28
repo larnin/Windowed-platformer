@@ -38,7 +38,7 @@ TileLayer layerFromTileID(unsigned int id)
 
 TileColliderType colliderFromTileID(unsigned int id)
 {
-	if (id = 0)
+	if (id == 0)
 		return TileColliderType::EMPTY;
 
 	auto pos = posFromTileID(id);

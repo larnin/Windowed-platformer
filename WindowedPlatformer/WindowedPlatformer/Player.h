@@ -25,13 +25,18 @@ public:
 	void attachGraphicEntity(Ndk::EntityHandle graphicEntity, unsigned int setLayer, float scale);
 	void attachPhysicEntity(Ndk::EntityHandle physicEntity, const Nz::Vector2f & pos);
 	void update(float elapsedTime);
+	void createCallbacks(Nz::PhysWorld2D & physWorld);
 
 private:
 	void setProperty(const std::string & key, int value);
 	Animator2DRef createAnimator();
+	void onTouchGround();
+	void onExitGround();
 
 	std::vector<RenderInfos> m_renders;
 	Ndk::PhysicsComponent2D* m_physics;
 	Animator2DRef m_animator;
+	bool m_grounded;
+	bool m_jumpPressed;
 };
 

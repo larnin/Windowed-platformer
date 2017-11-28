@@ -74,7 +74,7 @@ int main2()
 	auto & handler = mainWindow.GetEventHandler();
 
 	Nz::Vector2i clickPosition(0, 0);
-	Nz::Vector2f originalPos = nodeComponent.GetPosition() + Nz::Vector2f(mainWindow.GetPosition());
+	Nz::Vector2f originalPos = Nz::Vector2f(nodeComponent.GetPosition().x) + Nz::Vector2f(mainWindow.GetPosition());
 
 	handler.OnMouseButtonPressed.Connect([&clickPosition](const Nz::EventHandler*, const Nz::WindowEvent::MouseButtonEvent & e)
 	{

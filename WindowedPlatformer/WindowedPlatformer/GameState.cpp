@@ -18,9 +18,9 @@ GameState::GameState(Ndk::Application & app)
 	, m_tilemap(32, 18)
 {
 	auto & physWorld = m_world.GetSystem<Ndk::PhysicsSystem2D>().GetWorld();
-	physWorld.SetGravity(Nz::Vector2f(0, 1));
+	physWorld.SetGravity(Nz::Vector2f(0, 5));
 
-	Nz::PhysWorld2D::Callback playerGroundCallback;
+	/*Nz::PhysWorld2D::Callback playerGroundCallback;
 	playerGroundCallback.startCallback = [](Nz::PhysWorld2D& world, Nz::RigidBody2D& bodyA, Nz::RigidBody2D& bodyB, void*)
 	{
 		std::cout << "Start" << std::endl;
@@ -43,7 +43,7 @@ GameState::GameState(Ndk::Application & app)
 		std::cout << "post" << std::endl;
 	};
 
-	physWorld.RegisterCallbacks((unsigned int)(ColliderID::PLAYER), (unsigned int)(ColliderID::GROUND), playerGroundCallback);
+	physWorld.RegisterCallbacks((unsigned int)(ColliderID::PLAYER), (unsigned int)(ColliderID::GROUND), playerGroundCallback);*/
 
 	unsigned int y = 8;
 	m_tilemap.setBackTile(1, y, 2);
@@ -57,9 +57,10 @@ GameState::GameState(Ndk::Application & app)
 
 	auto entity = m_world.CreateEntity();
 	entity->AddComponent<Ndk::NodeComponent>();
+	//entity->AddComponent<Ndk::PhysicsComponent2D>();
 	m_tilemap.attachColliders(entity->AddComponent<Ndk::CollisionComponent2D>());
-
 	m_player.attachPhysicEntity(m_world.CreateEntity(), Nz::Vector2f(5, 1));
+	m_player.createCallbacks(physWorld);
 }
 
 void GameState::Enter(Ndk::StateMachine & fsm)
@@ -83,7 +84,6 @@ bool GameState::Update(Ndk::StateMachine & fsm, float elapsedTime)
 	m_world.Update(elapsedTime);
 	m_windowManager.update(elapsedTime);
 	m_player.update(elapsedTime);
-
 	return m_windowManager.windowCount() > 0;
 }
 

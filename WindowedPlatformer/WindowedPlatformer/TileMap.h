@@ -34,7 +34,9 @@ public:
 	inline void attachFrontTilemap(Nz::TileMapRef tilemap) { m_frontTilemaps.push_back(tilemap);  updateRender(tilemap, TilemapLayer::FRONT); }
 	inline void detachFrontTilemap(Nz::TileMapRef tilemap) { m_frontTilemaps.erase(std::remove(m_frontTilemaps.begin(), m_frontTilemaps.end(), tilemap), m_frontTilemaps.end()); }
 	inline void detachAllTilemap() { m_backTilemaps.clear(); m_frontTilemaps.clear(); }
-	inline void attachColliders(Ndk::CollisionComponent2D & colliders) { m_colliders = &colliders; }
+	inline void attachColliders(Ndk::CollisionComponent2D & colliders) { m_colliders = &colliders; updateCollisions(); }
+
+	inline Ndk::CollisionComponent2D* collider() { return m_colliders;}
 
 private:
 	void updateRender(Nz::TileMapRef map, TilemapLayer layer);

@@ -1,4 +1,5 @@
 #include "TileMap.h"
+#include <iostream>
 
 TileMap::TileMap(unsigned int width, unsigned int height, const Tile & t)
 	: m_tiles(width, height, t)
@@ -83,6 +84,7 @@ void TileMap::updateCollisions()
 		{
 			auto tile = getTile(i, j);
 			auto colliderType = colliderFromTileID(tile.frontID);
+			bool c = false;
 			if (colliderType != TileColliderType::EMPTY)
 			{
 				auto collider = createCollider(i, j, colliderType);
