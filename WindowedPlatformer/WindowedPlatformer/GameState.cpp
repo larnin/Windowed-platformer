@@ -45,19 +45,31 @@ GameState::GameState(Ndk::Application & app)
 
 	physWorld.RegisterCallbacks((unsigned int)(ColliderID::PLAYER), (unsigned int)(ColliderID::GROUND), playerGroundCallback);*/
 
-	unsigned int y = 8;
-	m_tilemap.setBackTile(1, y, 2);
+
+	m_tilemap.setBackTile(7, 9, 1);
+	//m_tilemap.setBackTile(8, 8, 1);
+	m_tilemap.setBackTile(9, 7, 1);
+	m_tilemap.setBackTile(10, 6, 1);
+	m_tilemap.setBackTile(11, 5, 1);
+	m_tilemap.setBackTile(12, 4, 1);
+
+	unsigned int y = 10;
+	for (int i(1); i < 25; i++)
+	{
+		m_tilemap.setBackTile(i, y, 1);
+		m_tilemap.setBackTile(i, y+1, 1);
+	}
+	/*m_tilemap.setBackTile(1, y, 2);
 	for (unsigned int i(2); i < 25; i++)
 		m_tilemap.setBackTile(i, y, 3);
 	m_tilemap.setBackTile(25, y, 4);
 	for (unsigned int i(1); i < 26; i++)
 		m_tilemap.setBackTile(i, y+1, 1);
 	m_tilemap.setBackTile(10, y+1, 10);
-	m_tilemap.setBackTile(15, y+1, 19);
+	m_tilemap.setBackTile(15, y+1, 19);*/
 
 	auto entity = m_world.CreateEntity();
 	entity->AddComponent<Ndk::NodeComponent>();
-	//entity->AddComponent<Ndk::PhysicsComponent2D>();
 	m_tilemap.attachColliders(entity->AddComponent<Ndk::CollisionComponent2D>());
 	m_player.attachPhysicEntity(m_world.CreateEntity(), Nz::Vector2f(5, 1));
 	m_player.createCallbacks(physWorld);
@@ -94,8 +106,8 @@ void GameState::addWindow(const Nz::Recti & localGeometry, unsigned int setIndex
 	auto tilemapEntity = w.createEntity();
 	tilemapEntity->AddComponent<Ndk::NodeComponent>();
 	auto & tilemapGraphic = tilemapEntity->AddComponent<Ndk::GraphicsComponent>();
-	auto & frontTilemap = createTileMap(setIndex);
-	auto & backTilemap = createTileMap(setIndex);
+	auto frontTilemap = createTileMap(setIndex);
+	auto backTilemap = createTileMap(setIndex);
 	tilemapGraphic.Attach(frontTilemap, 1);
 	tilemapGraphic.Attach(backTilemap, 0);
 	m_tilemap.attachBackTilemap(backTilemap);

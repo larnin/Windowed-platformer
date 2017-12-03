@@ -8,8 +8,7 @@
 #include <Nazara/Math/Algorithm.hpp>
 #include <iostream>
 
-const float width = 0.6f;
-const float height = 0.8f;
+const float radius = 0.4f;
 const float acceleration = 20.0f;
 const float maxSpeed = 5.0f;
 const float jumpPower = 5.0f;
@@ -40,12 +39,11 @@ void Player::attachPhysicEntity(Ndk::EntityHandle physicEntity, const Nz::Vector
 {
 	auto& nodeComponent = physicEntity->AddComponent<Ndk::NodeComponent>();
 	nodeComponent.SetPosition(pos);
-	auto collider = Nz::BoxCollider2D::New(Nz::Rectf(-width / 2, height, width, height));
+	auto collider = Nz::CircleCollider2D::New(radius);
 	collider->SetCollisionId((unsigned int)(ColliderID::PLAYER));
 	physicEntity->AddComponent<Ndk::CollisionComponent2D>(collider);
 	m_physics = &physicEntity->AddComponent<Ndk::PhysicsComponent2D>();
 	m_physics->SetPosition(pos);
-	
 }
 
 void Player::update(float elapsedTime)
@@ -80,9 +78,12 @@ void Player::update(float elapsedTime)
 	m_physics->SetVelocity(velocity);
 
 	auto pos = m_physics->GetPosition();
+	auto rot = m_physics->GetRotation();
 	for (auto & it : m_renders)
+	{
+		it.node->SetRotation(Nz::Quaternionf(Nz::EulerAnglesf(0, 0, rot)));
 		it.node->SetPosition(Nz::Vector3f(pos.x * it.scale, pos.y * it.scale, it.node->GetPosition().z));
-	//std::cout << m_physics->GetPosition().x << " " << m_physics->GetPosition().y << std::endl;
+	}
 }
 
 void Player::createCallbacks(Nz::PhysWorld2D & physWorld)
@@ -90,12 +91,14 @@ void Player::createCallbacks(Nz::PhysWorld2D & physWorld)
 	Nz::PhysWorld2D::Callback groundCallbacks;
 	groundCallbacks.startCallback = [this](Nz::PhysWorld2D& world, Nz::RigidBody2D& bodyA, Nz::RigidBody2D& bodyB, void*)
 	{
+		std::cout << "true" << std::endl;
 		m_grounded = true;
 		return true;
 	};
 
 	groundCallbacks.endCallback = [this](Nz::PhysWorld2D& world, Nz::RigidBody2D& bodyA, Nz::RigidBody2D& bodyB, void*)
 	{
+		std::cout << "false" << std::endl;
 		m_grounded = false;
 	};
 
@@ -113,6 +116,6 @@ void Player::setProperty(const std::string & key, int value)
 Animator2DRef Player::createAnimator()
 {
 	auto anim = Animation2D::New("Idle");
-	anim->addFrame(Frame(100, Nz::Rectui(246, 0, 45, 53)));
+	anim->addFrame(Frame(100, Nz::Rectui(246, 0, 45, 53), Nz::Vector2f(23, 30)));
 	return Animator2D::New(anim);
 }

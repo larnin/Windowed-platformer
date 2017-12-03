@@ -151,9 +151,11 @@ int main5()
 #include <NDK/Application.hpp>
 #include <NDK/Systems.hpp>
 #include <NDK/Components.hpp>
+#include <Nazara/Graphics/TileMap.hpp>
+#include <vector>
 #include <iostream>
 
-int main8()
+int main4()
 {
 	Ndk::Application application; 
 	Nz::RenderWindow& mainWindow = application.AddWindow<Nz::RenderWindow>(Nz::VideoMode(500, 500, 32), "Poop party", Nz::WindowStyle_Closable | Nz::WindowStyle_Threaded);
@@ -193,8 +195,161 @@ int main8()
 
 	while (application.Run())
 	{
-		std::cout << physicEntity.GetPosition().x << "\t" << physicEntity.GetPosition().y << "\t" << physicEntity.GetVelocity().x << "\t" << physicEntity.GetVelocity().y << std::endl;
+		//std::cout << physicEntity.GetPosition().x << "\t" << physicEntity.GetPosition().y << "\t" << physicEntity.GetVelocity().x << "\t" << physicEntity.GetVelocity().y << std::endl;
 		mainWindow.Display();
+	}
+
+	return EXIT_SUCCESS;
+}
+
+const float tileSize = 50.0f;
+const float playerSize = 30.0f;
+const float acceleration = 100.0f;
+const float maxSpeed = 50.0f;
+const float jumpPower = 50.0f;
+const float gravity = 100.0f;
+
+class PlayerE
+{
+public:
+	PlayerE(Ndk::PhysicsComponent2D & physics)
+		: m_physics(physics)
+		, m_jumpPressed(false)
+	{ }
+
+	void update(float time)
+	{
+		bool jumping = false;
+		if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Up))
+		{
+			if (!m_jumpPressed)
+			{
+				jumping = true;
+				m_jumpPressed = true;
+			}
+		}
+		else m_jumpPressed = false;
+
+		auto velocity = m_physics.GetVelocity();
+		if (jumping)
+			velocity.y = -jumpPower;
+
+		float dir = Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Right) - Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Left);
+		if (std::abs(dir) < 0.1f)
+			dir = (velocity.x < 0) - (velocity.x > 0);
+		dir *= acceleration * time;
+		velocity.x += dir;
+		velocity.x = Nz::Clamp(velocity.x, -maxSpeed, maxSpeed);
+		if (std::abs(dir) > std::abs(velocity.x))
+			velocity.x = 0;
+
+		m_physics.SetVelocity(velocity);
+	}
+
+private:
+	Ndk::PhysicsComponent2D & m_physics;
+	bool m_jumpPressed;
+};
+
+int getMapValue(int* map, unsigned int x, unsigned int y, unsigned int w)
+{
+	return map[x + y * w];
+}
+
+Nz::CompoundCollider2DRef createColliders(int* map, unsigned int w, unsigned int h)
+{
+	std::vector<Nz::Collider2DRef> colliders;
+
+	for (unsigned int i(0); i < w; i++)
+	{
+		for (unsigned int j(0); j < h; j++)
+		{
+			if (getMapValue(map, i, j, w) == 0)
+				continue;
+
+			colliders.push_back(Nz::BoxCollider2D::New(Nz::Rectf(i * tileSize, j * tileSize, tileSize, tileSize)));
+		}
+	}
+
+	return Nz::CompoundCollider2D::New(colliders);
+}
+
+Nz::TileMapRef createRender(int* map, unsigned int w, unsigned int h)
+{
+	auto tilemap = Nz::TileMap::New(Nz::Vector2ui(w, h), Nz::Vector2f(tileSize, tileSize));
+	auto mat = Nz::Material::New("Translucent2D");
+	mat->SetDiffuseMap("i.png");
+	tilemap->SetMaterial(0, mat);
+
+	for (unsigned int i(0); i < w; i++)
+	{
+		for (unsigned int j(0); j < h; j++)
+		{
+			if (getMapValue(map, i, j, w) == 0)
+				continue;
+
+			tilemap->EnableTile(Nz::Vector2ui(i, j), Nz::Rectui(0, 0, 1, 1));
+		}
+	}
+	return tilemap;
+}
+
+int main12()
+{
+	int map[] =
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	  0, 1, 1, 1, 1, 1, 1, 1, 0, 0,
+	  0, 1, 1, 1, 1, 1, 1, 1, 0, 1,
+	  1, 0, 1, 0, 1, 0, 1, 0, 1, 0,
+	  0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+	const unsigned int mapW = 10;
+	const unsigned int mapH = 8;
+
+	Ndk::Application application;
+	Nz::RenderWindow& mainWindow = application.AddWindow<Nz::RenderWindow>(Nz::VideoMode(500, 500, 32), "Poop party", Nz::WindowStyle_Closable | Nz::WindowStyle_Threaded);
+	mainWindow.SetFramerateLimit(60);
+
+	Ndk::World world;
+	world.GetSystem<Ndk::RenderSystem>().SetGlobalUp(Nz::Vector3f::Down());
+	world.GetSystem<Ndk::PhysicsSystem2D>().GetWorld().SetGravity(Nz::Vector2f(0, gravity));
+
+	Ndk::EntityHandle viewEntity = world.CreateEntity();
+	Ndk::NodeComponent& nodeComponent = viewEntity->AddComponent<Ndk::NodeComponent>();
+	Ndk::CameraComponent& viewer = viewEntity->AddComponent<Ndk::CameraComponent>();
+	viewer.SetTarget(&mainWindow);
+	viewer.SetProjectionType(Nz::ProjectionType_Orthogonal);
+
+	auto entitySprite = Nz::Sprite::New();
+	entitySprite->SetSize(playerSize, playerSize);
+
+	auto entity = world.CreateEntity();
+	entity->AddComponent<Ndk::NodeComponent>();
+	auto& colliderEntity = entity->AddComponent<Ndk::CollisionComponent2D>();
+	colliderEntity.SetGeom(Nz::BoxCollider2D::New(Nz::Rectf(0, 0, playerSize, playerSize)));
+	auto& physicEntity = entity->AddComponent<Ndk::PhysicsComponent2D>();
+	physicEntity.SetMassCenter(Nz::Vector2f(playerSize / 2.0f, playerSize / 2.0f));
+	physicEntity.SetPosition(Nz::Vector2f(200, 50));
+	auto& graphicEntity = entity->AddComponent<Ndk::GraphicsComponent>();
+	graphicEntity.Attach(entitySprite);
+	PlayerE p(physicEntity);
+
+	auto wall = world.CreateEntity();
+	auto& nodeWall = wall->AddComponent<Ndk::NodeComponent>();
+	nodeWall.SetPosition(Nz::Vector2f(0, 0));
+	auto & collisionWall = wall->AddComponent<Ndk::CollisionComponent2D>();
+	collisionWall.SetGeom(createColliders(map, mapW, mapH));
+	auto& graphicWall = wall->AddComponent<Ndk::GraphicsComponent>();
+	graphicWall.Attach(createRender(map, mapW, mapH));
+
+	while (application.Run())
+	{
+		mainWindow.Display();
+		auto time = application.GetUpdateTime();
+		p.update(time);
+		world.Update(time);
 	}
 
 	return EXIT_SUCCESS;
