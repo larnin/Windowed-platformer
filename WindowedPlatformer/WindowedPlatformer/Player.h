@@ -24,15 +24,18 @@ public:
 
 	void attachGraphicEntity(Ndk::EntityHandle graphicEntity, unsigned int setLayer, float scale);
 	void attachPhysicEntity(Ndk::EntityHandle physicEntity, const Nz::Vector2f & pos);
+	void attachPhysWorld(Nz::PhysWorld2D & physWorld);
 	void update(float elapsedTime);
-	void createCallbacks(Nz::PhysWorld2D & physWorld);
 
 private:
+	void createCallbacks();
 	void setProperty(const std::string & key, int value);
+	void checkGround();
 	Animator2DRef createAnimator();
 
 	std::vector<RenderInfos> m_renders;
 	Ndk::PhysicsComponent2D* m_physics;
+	Nz::PhysWorld2D* m_physWorld;
 	Animator2DRef m_animator;
 	bool m_grounded;
 	bool m_jumpPressed;

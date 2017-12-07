@@ -72,7 +72,7 @@ GameState::GameState(Ndk::Application & app)
 	entity->AddComponent<Ndk::NodeComponent>();
 	m_tilemap.attachColliders(entity->AddComponent<Ndk::CollisionComponent2D>());
 	m_player.attachPhysicEntity(m_world.CreateEntity(), Nz::Vector2f(5, 1));
-	m_player.createCallbacks(physWorld);
+	m_player.attachPhysWorld(physWorld);
 }
 
 void GameState::Enter(Ndk::StateMachine & fsm)

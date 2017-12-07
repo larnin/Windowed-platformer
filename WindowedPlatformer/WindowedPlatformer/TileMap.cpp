@@ -84,7 +84,6 @@ void TileMap::updateCollisions()
 		{
 			auto tile = getTile(i, j);
 			auto colliderType = colliderFromTileID(tile.frontID);
-			bool c = false;
 			if (colliderType != TileColliderType::EMPTY)
 			{
 				auto collider = createCollider(i, j, colliderType);

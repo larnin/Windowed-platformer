@@ -6,6 +6,7 @@
 #include <Nazara/Platform/Keyboard.hpp>
 #include <Nazara/Physics2D/PhysWorld2D.hpp>
 #include <Nazara/Math/Algorithm.hpp>
+#include <numeric>
 #include <iostream>
 
 const float radius = 0.4f;
@@ -46,10 +47,18 @@ void Player::attachPhysicEntity(Ndk::EntityHandle physicEntity, const Nz::Vector
 	m_physics->SetPosition(pos);
 }
 
+void Player::attachPhysWorld(Nz::PhysWorld2D & physWorld)
+{
+	m_physWorld = &physWorld;
+	createCallbacks();
+}
+
 void Player::update(float elapsedTime)
 {
 	if (m_physics == nullptr)
 		return;
+
+	checkGround();
 
 	bool jumping = false;
 	if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Up))
@@ -86,23 +95,21 @@ void Player::update(float elapsedTime)
 	}
 }
 
-void Player::createCallbacks(Nz::PhysWorld2D & physWorld)
+void Player::createCallbacks()
 {
 	Nz::PhysWorld2D::Callback groundCallbacks;
 	groundCallbacks.startCallback = [this](Nz::PhysWorld2D& world, Nz::RigidBody2D& bodyA, Nz::RigidBody2D& bodyB, void*)
 	{
-		std::cout << "true" << std::endl;
-		m_grounded = true;
+		//m_grounded = true;
 		return true;
 	};
 
 	groundCallbacks.endCallback = [this](Nz::PhysWorld2D& world, Nz::RigidBody2D& bodyA, Nz::RigidBody2D& bodyB, void*)
 	{
-		std::cout << "false" << std::endl;
-		m_grounded = false;
+		//m_grounded = false;
 	};
 
-	physWorld.RegisterCallbacks((unsigned int)(ColliderID::PLAYER), (unsigned int)(ColliderID::GROUND), groundCallbacks);
+	m_physWorld->RegisterCallbacks((unsigned int)(ColliderID::PLAYER), (unsigned int)(ColliderID::GROUND), groundCallbacks);
 }
 
 void Player::setProperty(const std::string & key, int value)
@@ -111,6 +118,33 @@ void Player::setProperty(const std::string & key, int value)
 	{
 		it.animator->setProperty(key, value);
 	}
+}
+
+void Player::checkGround()
+{
+	if (m_physWorld == nullptr)
+	{
+		m_grounded = false;
+		return;
+	}
+
+	const Nz::Vector2f from = m_physics->GetPosition();
+	const Nz::Vector2f to = from + Nz::Vector2f(0, 0.1f + radius);
+
+	auto groundIds = { ColliderID::GROUND, ColliderID::PLATFORM, ColliderID::UNSTABLE_BLOCK };
+	unsigned int mask = std::accumulate(groundIds.begin(), groundIds.end(), 0u, [](unsigned int i, ColliderID id) {return i + (1 << (unsigned int)id); });
+	m_grounded = m_physWorld->RaycastQueryFirst(from, to, 0, 0, 0xFFFFFFFF, mask);
+
+
+	/*for (auto id : groundIds)
+	{
+		if (m_physWorld->RaycastQueryFirst(m_physics->GetPosition(), to, 0, (unsigned int)id, ~0, ~0))
+		{
+			m_grounded = true;
+			return;
+		}
+	}
+	m_grounded = false;*/
 }
 
 Animator2DRef Player::createAnimator()
