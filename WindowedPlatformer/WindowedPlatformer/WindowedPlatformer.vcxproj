@@ -151,6 +151,7 @@
     <ClInclude Include="Animation2D\Conditions.h" />
     <ClInclude Include="Animation2D\PropertiesHolder.h" />
     <ClInclude Include="Enums.h" />
+    <ClInclude Include="Event\Event.h" />
     <ClInclude Include="GameState.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Tile.h" />
@@ -161,6 +162,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Animation2D\Animation2D.inl" />
+    <None Include="Event\Event.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

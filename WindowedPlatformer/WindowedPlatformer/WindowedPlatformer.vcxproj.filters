@@ -25,6 +25,12 @@
     <Filter Include="Fichiers sources\Animation2D">
       <UniqueIdentifier>{c304ba44-bd2d-420c-8a75-270544d331cb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Fichiers d%27en-tête\Event">
+      <UniqueIdentifier>{b587ad7f-eb64-4f46-8a9f-54475633b4e9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers sources\Event">
+      <UniqueIdentifier>{1cfb534f-08c3-4b88-ad26-c6ded49e0d3b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -125,10 +131,16 @@
     <ClInclude Include="Animation2D\Animator2DSystem.h">
       <Filter>Fichiers d%27en-tête\Animation2D</Filter>
     </ClInclude>
+    <ClInclude Include="Event\Event.h">
+      <Filter>Fichiers d%27en-tête\Event</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Animation2D\Animation2D.inl">
       <Filter>Fichiers d%27en-tête\Animation2D</Filter>
+    </None>
+    <None Include="Event\Event.inl">
+      <Filter>Fichiers d%27en-tête\Event</Filter>
     </None>
   </ItemGroup>
 </Project>

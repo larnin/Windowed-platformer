@@ -13,7 +13,7 @@ void initializeSystemsAndComponents()
 	Ndk::InitializeSystem<Animator2DSystem>();
 }
 
-int main()
+int main1()
 {
 	Ndk::Application application;
 	application.MakeExitOnLastWindowClosed(false);
@@ -353,4 +353,43 @@ int main12()
 	}
 
 	return EXIT_SUCCESS;
+}
+
+#include "Event/Event.h"
+
+struct EventInt
+{
+	EventInt(int _value) : value(_value) {}
+	int value;
+};
+
+class A
+{
+public:
+	A(const std::string & lbl) 
+		: m_event(Event<EventInt>::connect([this](auto e) {foo(e); }))
+		, m_label(lbl)
+	{
+
+	}
+
+private:
+	void foo(EventInt e)
+	{
+		std::cout << m_label << " " << e.value << std::endl;
+	}
+	EventHolder<EventInt> m_event;
+	std::string m_label;
+};
+
+int main()
+{
+	A b("From b :");
+	{
+		A a("From a :");
+		Event<EventInt>::send({ 1 });
+	}
+	std::cout << "----" << std::endl;
+	Event<EventInt>::send({ 1 });
+	std::getchar();
 }
